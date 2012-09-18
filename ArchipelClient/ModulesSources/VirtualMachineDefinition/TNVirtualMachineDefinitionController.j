@@ -1035,18 +1035,37 @@ var TNArchipelDefinitionUpdatedNotification             = @"TNArchipelDefinition
         capabilities            = [currentSelectedGuest XMLGuest],
         domains                 = [capabilities childrenWithName:@"domain"];
 
-    // strips Tables devices if using XEN
+    // Define what we need to hide by default
+    [fieldBootloader setEnabled:NO];
+    [fieldBootloaderArgs setEnabled:NO];
+    [fieldOSLoader setEnabled:NO];
+
     if ([[domains firstObject] valueForAttribute:@"type"] == TNLibvirtDomainTypeXen)
     {
-        var tablets = [];
-        for (var i = 0; i < [[[_libvirtDomain devices] inputs] count]; i++)
+        if ([[capabilities firstChildWithName:@"os_type"] text] == TNLibvirtDomainOSTypeTypeHVM)
         {
-            var input = [[[_libvirtDomain devices] inputs] objectAtIndex:i];
-            if ([input type] == TNLibvirtDeviceInputTypesTypeTablet)
-                [tablets addObject:input];
+            [fieldOSLoader setEnabled:YES];
         }
 
-        [[[_libvirtDomain devices] inputs] removeObjectsInArray:tablets];
+        if ([[capabilities firstChildWithName:@"os_type"] text] == TNLibvirtDomainOSTypeTypeXen)
+        {
+            // strip tablet from tables
+            var tablets = [];
+            for (var i = 0; i < [[[_libvirtDomain devices] inputs] count]; i++)
+            {
+                var input = [[[_libvirtDomain devices] inputs] objectAtIndex:i];
+                if ([input type] == TNLibvirtDeviceInputTypesTypeTablet)
+                    [tablets addObject:input];
+            }
+            [[[_libvirtDomain devices] inputs] removeObjectsInArray:tablets];
+
+            // show bootloader fields
+            [fieldBootloader setEnabled:YES];
+            [fieldBootloaderArgs setEnabled:YES];
+            // hide unsed ones
+            [buttonBoot setEnabled:NO];
+        }
+
     }
 
     if (domains && [domains count] > 0)
@@ -1229,8 +1248,8 @@ var TNArchipelDefinitionUpdatedNotification             = @"TNArchipelDefinition
     [fieldOSKernel setNeedsDisplay:YES];
     [fieldOSInitrd setNeedsDisplay:YES];
     [fieldOSLoader setNeedsDisplay:YES];
-    [fieldBootloader setNeedsDisplay:YES];
-    [fieldBootloaderArgs setNeedsDisplay:YES];
+    [fieldBootloader setNeedsDisplay:NO];
+    [fieldBootloaderArgs setNeedsDisplay:NO];
 
     [fieldStringXMLDesc setNeedsDisplay:YES];
     [stepperNumberCPUs setNeedsDisplay:YES];
