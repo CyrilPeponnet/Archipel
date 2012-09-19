@@ -49,6 +49,11 @@
 @import "TNInterfaceDeviceDataView.j"
 @import "TNVirtualMachineGuestItem.j"
 
+/*! @global
+    @group TNDragType
+    Drag type for VirtualMedia
+*/
+TNDragTypeMedia   = @"TNDragTypeMedia";
 
 var TNArchipelDefinitionUpdatedNotification             = @"TNArchipelDefinitionUpdatedNotification",
     TNArchipelTypeVirtualMachineControl                 = @"archipel:vm:control",
@@ -303,7 +308,8 @@ var TNArchipelDefinitionUpdatedNotification             = @"TNArchipelDefinition
     [tableDrives setTarget:self];
     [tableDrives setDoubleAction:@selector(editDrive:)];
     [tableDrives setSelectionHighlightStyle:CPTableViewSelectionHighlightStyleNone];
-    [tableDrives setBackgroundColor:[CPColor colorWithHexString:@"F7F7F7"]];
+    [tableDrives setBackgroundColor:[CPColor colorWithHexString:@"55555"]];
+    [tableDrives registerForDraggedTypes:[CPArray arrayWithObjects:TNDragTypeMedia]];
 
     [viewDrivesContainer setBorderedWithHexColor:@"#C0C7D2"];
 
@@ -565,7 +571,6 @@ var TNArchipelDefinitionUpdatedNotification             = @"TNArchipelDefinition
     [tableInputDevices setDelegate:self];
     [tableGraphicsDevices setDelegate:nil];
     [tableGraphicsDevices setDelegate:self];
-
     [driveController setEntity:_entity];
     [interfaceController setEntity:_entity];
 
@@ -596,6 +601,7 @@ var TNArchipelDefinitionUpdatedNotification             = @"TNArchipelDefinition
     [self getCapabilities];
 
     // seems to be necessary
+    [tableDrives registerForDraggedTypes:[CPArray arrayWithObjects:TNDragTypeMedia]];
     [tableDrives reloadData];
     [tableInterfaces reloadData];
 
@@ -2473,6 +2479,52 @@ var TNArchipelDefinitionUpdatedNotification             = @"TNArchipelDefinition
     [graphicDeviceController closeWindow:nil];
     [characterDeviceController closeWindow:nil];
     [popoverXMLEditor close];
+}
+
+#pragma mark -
+#pragma mark Datasource
+
+- (BOOL)tableView:(CPTableView)aTableView writeRowsWithIndexes:(CPIndexSet)rowIndexes toPasteboard:(CPPasteboard)pasteboard
+{
+    var encodedData = [CPKeyedArchiver archivedDataWithRootObject:rowIndexes];
+    [pasteboard declareTypes:[CPArray arrayWithObject:TNDragTypeMedia] owner:self];
+    [pasteboard setData:encodedData forType:TNDragTypeMedia];
+
+    return YES;
+}
+
+- (CPDragOperation)tableView:(CPTableView)aTableView validateDrop:(id)info proposedRow:(int)row proposedDropOperation:(CPTableViewDropOperation)operation
+{
+    [aTableView setDropRow:row dropOperation:CPTableViewDropAbove];
+    return CPDragOperationMove;
+}
+
+- (BOOL)tableView:(CPTableView)aTableView acceptDrop:(id)info row:(int)row dropOperation:(CPTableViewDropOperation)operation
+{
+    var pasteboard = [info draggingPasteboard],
+        encodedData = [pasteboard dataForType:TNDragTypeMedia],
+        sourceIndexes = [CPKeyedUnarchiver unarchiveObjectWithData:encodedData],
+        firstDestinationObject,
+        destinationRange,
+        destinationIndexes;
+
+    if (operation == CPTableViewDropAbove)
+    {
+        // Save the first object in the list so we can determine where the
+        // beginning of the moved block begins once all the selected rows have
+        // been moved.
+        firstDestinationObject = [rowList objectAtIndex:[sourceIndexes
+        firstIndex]];
+
+        [rowList moveIndexes:sourceIndexes toIndex:row];
+
+        // Select the rows we just moved.
+        destinationRange = CPMakeRange([rowList indexOfObject:firstDestinationObject], [sourceIndexes count]);
+        destinationIndexes = [CPIndexSet indexSetWithIndexesInRange:destinationRange];
+        [aTableView selectRowIndexes:destinationIndexes byExtendingSelection:NO];
+    }
+
+    return YES;
 }
 
 @end
