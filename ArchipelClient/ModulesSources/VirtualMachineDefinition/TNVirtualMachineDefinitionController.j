@@ -48,6 +48,7 @@
 @import "TNInterfaceController.j"
 @import "TNInterfaceDeviceDataView.j"
 @import "TNVirtualMachineGuestItem.j"
+@import "TNDragDropTableViewDataSource.j"
 
 
 var TNArchipelDefinitionUpdatedNotification             = @"TNArchipelDefinitionUpdatedNotification",
@@ -58,6 +59,7 @@ var TNArchipelDefinitionUpdatedNotification             = @"TNArchipelDefinition
     TNArchipelTypeVirtualMachineDefinitionUndefine      = @"undefine",
     TNArchipelTypeVirtualMachineDefinitionCapabilities  = @"capabilities",
     TNArchipelPushNotificationDefinitition              = @"archipel:push:virtualmachine:definition",
+    TNDragDropTypeIndex                                 = @"TNDragDropTypeIndex",
     VIR_DOMAIN_NOSTATE                                  =   0,
     VIR_DOMAIN_RUNNING                                  =   1,
     VIR_DOMAIN_BLOCKED                                  =   2,
@@ -184,7 +186,7 @@ var TNArchipelDefinitionUpdatedNotification             = @"TNArchipelDefinition
     CPPredicate                         _consoleFilterPredicate;
     CPString                            _stringXMLDesc;
     TNTableViewDataSource               _characterDevicesDatasource;
-    TNTableViewDataSource               _drivesDatasource;
+    TNDragDropTableViewDataSource       _drivesDatasource;
     TNTableViewDataSource               _graphicDevicesDatasource;
     TNTableViewDataSource               _inputDevicesDatasource;
     TNTableViewDataSource               _nicsDatasource;
@@ -295,7 +297,7 @@ var TNArchipelDefinitionUpdatedNotification             = @"TNArchipelDefinition
     _stringXMLDesc = @"";
 
     // DRIVES
-    _drivesDatasource = [[TNTableViewDataSource alloc] init];
+    _drivesDatasource = [[TNDragDropTableViewDataSource alloc] init];
     [_drivesDatasource setTable:tableDrives];
     [_drivesDatasource setSearchableKeyPaths:[@"type", @"driver.type", @"target.device", @"source.sourceObject", @"target.bus", @"driver.cache"]];
     [[tableDrives tableColumnWithIdentifier:@"self"] setDataView:[dataViewDrivesPrototype duplicate]];
@@ -304,6 +306,7 @@ var TNArchipelDefinitionUpdatedNotification             = @"TNArchipelDefinition
     [tableDrives setDoubleAction:@selector(editDrive:)];
     [tableDrives setSelectionHighlightStyle:CPTableViewSelectionHighlightStyleNone];
     [tableDrives setBackgroundColor:[CPColor colorWithHexString:@"F7F7F7"]];
+    [tableDrives registerForDraggedTypes:[TNDragDropTypeIndex]];
 
     [viewDrivesContainer setBorderedWithHexColor:@"#C0C7D2"];
 
