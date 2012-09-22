@@ -21,6 +21,7 @@
 
 TNLibvirtDomainOSTypeTypeLinux  = @"linux";
 TNLibvirtDomainOSTypeTypeHVM    = @"hvm";
+TNLibvirtDomainOSTypeTypeXen    = @"xen";
 
 @import "TNLibvirtBase.j";
 
