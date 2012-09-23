@@ -86,6 +86,7 @@ var TNDragDropTypeIndex = @"TNDragDropTypeIndex";
 
             index = [sourceIndex indexLessThanIndex:index];
         }
+        [[CPNotificationCenter defaultCenter] postNotificationName:@"TNVirtualMachineDefinitionControllerNotification" object:self];
 
     }
 

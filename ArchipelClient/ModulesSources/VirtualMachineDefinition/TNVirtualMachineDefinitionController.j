@@ -52,6 +52,7 @@
 
 
 var TNArchipelDefinitionUpdatedNotification             = @"TNArchipelDefinitionUpdatedNotification",
+    TNVirtualMachineDefinitionControllerNotification    = @"TNVirtualMachineDefinitionControllerNotification",
     TNArchipelTypeVirtualMachineControl                 = @"archipel:vm:control",
     TNArchipelTypeVirtualMachineDefinition              = @"archipel:vm:definition",
     TNArchipelTypeVirtualMachineControlXMLDesc          = @"xmldesc",
@@ -555,6 +556,7 @@ var TNArchipelDefinitionUpdatedNotification             = @"TNArchipelDefinition
 
     [center addObserver:self selector:@selector(_didUpdatePresence:) name:TNStropheContactPresenceUpdatedNotification object:_entity];
     [center addObserver:self selector:@selector(_didEditDefinition:) name:CPControlTextDidChangeNotification object:fieldMemory];
+    [center addObserver:self selector:@selector(_didEditDefinition:) name:TNVirtualMachineDefinitionControllerNotification object:nil];
 
     [self registerSelector:@selector(_didReceivePush:) forPushNotificationType:TNArchipelPushNotificationDefinitition];
 
