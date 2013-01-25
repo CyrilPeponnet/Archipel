@@ -114,6 +114,7 @@ var TNArchipelPushNotificationDefinition            = @"archipel:push:virtualmac
     @outlet CPTextField             fieldInfoState;
     @outlet CPTextField             fieldOOMAdjust;
     @outlet CPTextField             fieldOOMScore;
+    @outlet CPTextField             fieldPreferencesCPUSampleRefresh;
     @outlet CPTextField             fieldPreferencesScreenshotRefresh;
     @outlet CPView                  viewTableHypervisorsContainer;
     @outlet TNSwitch                switchAutoStart;
