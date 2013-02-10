@@ -256,8 +256,18 @@ class TNArchipelVNC (TNArchipelPlugin):
         @rtype: string
         @return: the answer
         """
-        try:
-            ports = self.display()
-            return "You can connect to my screen at %s:%s" % (self.entity.ipaddr, ports["direct"])
-        except Exception as ex:
-            return build_error_message(self, ex, msg)
+        if self.entity.domain:
+            dominfo = self.entity.domain.info()
+            if dominfo[0] == libvirt.VIR_DOMAIN_RUNNING or dominfo[0] == libvirt.VIR_DOMAIN_BLOCKED:
+                try:
+                    ports = self.display()
+                    ssl_support = "SSL connexion only" if ports["supportssl"] and ports["onlyssl"] else "SSL connexion supported" if ports["supportssl"] and not ports["onlyssl"] else "SSL connexion not supported"
+                    return "You can connect to my screen at %s:%s (%s)" % (self.entity.ipaddr, ports["proxy"],ssl_support)
+                except Exception as ex:
+                    return build_error_message(self, ex, msg)
+            else:
+                try:
+                    return "You can't connect to my screen if I'm not running !"
+                except Exception as ex:
+                    return build_error_message(self, ex, msg)
+
