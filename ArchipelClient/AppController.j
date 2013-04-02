@@ -673,7 +673,7 @@ __COPYRIGHT__ = "Copyright 2010-2013 Antoine Mercadal";
     [_userAvatarButton setAction:@selector(toolbarItemAvatarClick:)];
     [_userAvatarButton setMenu:userAvatarMenu];
     [_userAvatarButton setValue:CPScaleProportionally forThemeAttribute:@"image-scaling"];
-    [_userAvatarButton setImage:[[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"user-unknown.png"] size:TNUserAvatarSize]];
+    [_userAvatarButton setImage:[[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"IconsButtons/user-unknown.png"] size:TNUserAvatarSize]];
 
     [[_mainToolbar customSubViews] addObject:_userAvatarButton];
     [_mainToolbar reloadToolbarItems];

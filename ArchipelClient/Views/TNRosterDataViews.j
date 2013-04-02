@@ -35,7 +35,7 @@ var TNRosterDataViewContactImageUnknownUser,
 {
     var bundle  = [CPBundle mainBundle];
 
-    TNRosterDataViewContactImageUnknownUser = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"user-unknown.png"]];
+    TNRosterDataViewContactImageUnknownUser = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"IconsButtons/user-unknown.png"]];
 }
 
 + (Class)transformedValueClass

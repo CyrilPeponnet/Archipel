@@ -74,7 +74,7 @@ var TNArchipelPushNotificationXMPPServerUsers   = @"archipel:push:xmppserver:use
             [bundle objectForInfoDictionaryKey:@"TNArchipelUseEjabberdSharedRosterGroups"], @"TNArchipelUseEjabberdSharedRosterGroups"
     ]];
 
-    _defaultAvatar  = [[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"user-unknown.png"]];
+    _defaultAvatar  = [[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/user-unknown.png"]];
 
     _itemViewUsers   = [[CPTabViewItem alloc] initWithIdentifier:@"itemUsers"],
     _itemViewGroups  = [[CPTabViewItem alloc] initWithIdentifier:@"itemGroups"];

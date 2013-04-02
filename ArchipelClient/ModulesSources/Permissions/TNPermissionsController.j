@@ -98,7 +98,7 @@ var TNArchipelTypePermissions                   = @"archipel:permissions",
 - (void)awakeFromCib
 {
     _currentUserPermissions = [CPArray array];
-    _defaultAvatar          = [[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"user-unknown.png"]];
+    _defaultAvatar          = [[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/user-unknown.png"]];
 
     [viewTableContainer setBorderedWithHexColor:@"#C0C7D2"];
     [imageFecthingUsers setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"spinner.gif"] size:CGSizeMake(16, 16)]];

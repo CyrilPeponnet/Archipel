@@ -102,9 +102,9 @@
 
     _height                 = 180;
     _isCollapsed            = YES;
-    _unknownUserImage       = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"user-unknown.png"]];
-    _groupUserImage         = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"groups.png"] size:CGSizeMake(16,16)];
-    _pubsubImage            = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"pubsub.png"]];
+    _unknownUserImage       = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"IconsButtons/user-unknown.png"]];
+    _groupUserImage         = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"IconsButtons/groups.png"] size:CGSizeMake(16,16)];
+    _pubsubImage            = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"IconsButtons/pubsub.png"]];
 
     [viewVCard setBackgroundColor:[CPColor colorWithHexString:@"f6f6f6"]];
     [viewXMPPInfos setBackgroundColor:[CPColor colorWithHexString:@"f6f6f6"]];
