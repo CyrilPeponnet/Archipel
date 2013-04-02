@@ -24,9 +24,9 @@
 */
 @implementation CPMenu (addItemWithImage)
 
-- (CPMenuItem)addItemWithImage:(CPString)aTitle action:(SEL)anAction keyEquivalent:(CPString)aKeyEquivalent imagePath:(CPString)aPath
+- (CPMenuItem)addItemWithImage:(CPString)aTitle action:(SEL)anAction keyEquivalent:(CPString)aKeyEquivalent bundleImage:(CPBundle)aBundle
 {
-	var image = [[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:aPath] size:CGSizeMake(12, 12)],
+	var image = [[CPImage alloc] initWithContentsOfFile:aBundle size:CGSizeMake(12, 12)],
 		item  = [[CPMenuItem alloc] initWithTitle:(@" " + aTitle) action:anAction keyEquivalent:aKeyEquivalent];
 
 	[item setImage:image];
