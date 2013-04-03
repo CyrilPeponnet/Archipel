@@ -80,6 +80,7 @@
     CPButton                    _minusButtonDHCPRanges;
     CPButton                    _plusButtonDHCPHosts;
     CPButton                    _plusButtonDHCPRanges;
+    CPMenu                      _contextualMenu;
     TNTableViewDataSource       _datasourceDHCPHosts;
     TNTableViewDataSource       _datasourceDHCPRanges;
 }
@@ -89,6 +90,8 @@
 
 - (void)awakeFromCib
 {
+    _contextualMenu = [[CPMenu alloc] init];
+
     _plusButtonDHCPHosts = [CPButtonBar plusButton];
     [_plusButtonDHCPHosts setTarget:self];
     [_plusButtonDHCPHosts setAction:@selector(addDHCPHost:)];
@@ -133,17 +136,6 @@
     [tableViewHosts setDataSource:_datasourceDHCPHosts];
     [_datasourceDHCPHosts setTable:tableViewHosts];
     [viewHostsTableContainer setBorderedWithHexColor:@"#C0C7D2"];
-
-    var menuRange = [[CPMenu alloc] init],
-        menuHost = [[CPMenu alloc] init];
-
-    [menuRange addItemWithTitle:CPBundleLocalizedString(@"Add new range", @"Add new range") action:@selector(addDHCPRange:) keyEquivalent:@""];
-    [menuRange addItemWithTitle:CPBundleLocalizedString(@"Remove", @"Remove") action:@selector(removeDHCPRange:) keyEquivalent:@""];
-    [tableViewRanges setMenu:menuRange];
-
-    [menuHost addItemWithTitle:CPBundleLocalizedString(@"Add new host reservation", @"Add new host reservation") action:@selector(addDHCPHost:) keyEquivalent:@""];
-    [menuHost addItemWithTitle:CPBundleLocalizedString(@"Remove", @"Remove") action:@selector(removeDHCPHost:) keyEquivalent:@""];
-    [tableViewHosts setMenu:menuHost];
 
     var tabViewDHCPRangesItem = [[CPTabViewItem alloc] initWithIdentifier:@"id1"],
         tabViewDHCPHostsItem = [[CPTabViewItem alloc] initWithIdentifier:@"id2"];
@@ -631,8 +623,38 @@
     }
 }
 
-@end
+#pragma mark -
+#pragma mark Delegate
 
+/*! Delegate of CPTableView - This will be called when context menu is triggered with right click
+*/
+- (CPMenu)tableView:(CPTableView)aTableView menuForTableColumn:(CPTableColumn)aColumn row:(int)aRow;
+{
+
+    if ([checkBoxDHCPEnabled state] == CPOffState)
+        return;
+
+    [_contextualMenu removeAllItems];
+
+    switch(aTableView)
+    {
+        case tableViewRanges:
+            [[_contextualMenu addItemWithTitle:CPBundleLocalizedString(@"Add new range", @"Add new range") action:@selector(addDHCPRange:) keyEquivalent:@""] setTarget:self];
+            [[_contextualMenu addItemWithTitle:CPBundleLocalizedString(@"Remove", @"Remove") action:@selector(removeDHCPRange:) keyEquivalent:@""] setTarget:self];
+            break;
+
+        case tableViewHosts:
+            [[_contextualMenu addItemWithTitle:CPBundleLocalizedString(@"Add new host reservation", @"Add new host reservation") action:@selector(addDHCPHost:) keyEquivalent:@""] setTarget:self];
+            [[_contextualMenu addItemWithTitle:CPBundleLocalizedString(@"Remove", @"Remove") action:@selector(removeDHCPHost:) keyEquivalent:@""] setTarget:self];
+            break;
+
+        default:
+            return;
+    }
+    return _contextualMenu;
+}
+
+@end
 
 // add this code to make the CPLocalizedString looking at
 // the current bundle.

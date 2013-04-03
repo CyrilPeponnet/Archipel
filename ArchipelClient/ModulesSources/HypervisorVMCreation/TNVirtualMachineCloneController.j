@@ -20,7 +20,7 @@
 @import <AppKit/CPView.j>
 @import <AppKit/CPButton.j>
 @import <AppKit/CPTextField.j>
-@import <AppKit/CPTabView.j>
+@import <AppKit/CPTableView.j>
 
 @import <GrowlCappuccino/GrowlCappuccino.j>
 @import <StropheCappuccino/TNStropheStanza.j>

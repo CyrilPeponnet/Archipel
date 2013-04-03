@@ -48,6 +48,12 @@ var TNArchipelPushNotificationNetworks          = @"archipel:push:network",
     TNArchipelTypeHypervisorNetworkDestroy      = @"destroy",
     TNArchipelTypeHypervisorNetworkGetNics      = @"getnics";
 
+var TNArchipelResourceIconBundleForPlus         = nil,
+    TNArchipelResourceIconBundleForDelete       = nil,
+    TNArchipelResourceIconBundleForEnable       = nil,
+    TNArchipelResourceIconBundleForDisable      = nil,
+    TNArchipelResourceIconBundleForEditxml      = nil,
+    TNArchipelResourceIconBundleForEdit         = nil;
 
 /*! @defgroup  hypervisornetworks Module Hypervisor Networks
     @desc This manages hypervisors' virtual networks
@@ -77,6 +83,7 @@ var TNArchipelPushNotificationNetworks          = @"archipel:push:network",
     TNLibvirtNetwork                    _networkHolder;
     TNTableViewDataSource               _datasourceNetworks;
     CPDictionary                        _networksRAW;
+    CPMenu                              _contextualMenu;
 
 }
 
@@ -90,6 +97,17 @@ var TNArchipelPushNotificationNetworks          = @"archipel:push:network",
     _networksRAW = [CPDictionary dictionary];
 
     [viewTableContainer setBorderedWithHexColor:@"#C0C7D2"];
+
+    // Button Icon bundle init
+    TNArchipelResourceIconBundleForPlus     = [[CPBundle mainBundle] pathForResource:@"IconsButtons/plus.png"];
+    TNArchipelResourceIconBundleForDelete   = [[CPBundle mainBundle] pathForResource:@"IconsButtons/clean.png"];
+    TNArchipelResourceIconBundleForEnable   = [[CPBundle mainBundle] pathForResource:@"IconsButtons/check.png"];
+    TNArchipelResourceIconBundleForDisable  = [[CPBundle mainBundle] pathForResource:@"IconsButtons/cancel.png"];
+    TNArchipelResourceIconBundleForEditxml  = [[CPBundle mainBundle] pathForResource:@"IconsButtons/editxml.png"];
+    TNArchipelResourceIconBundleForEdit     = [[CPBundle mainBundle] pathForResource:@"IconsButtons/edit.png"];
+
+    // contextual menu
+    _contextualMenu = [[CPMenu alloc] init];
 
     /* VM table view */
     _datasourceNetworks     = [[TNTableViewDataSource alloc] init];
@@ -119,25 +137,25 @@ var TNArchipelPushNotificationNetworks          = @"archipel:push:network",
     [_minusButton setToolTip:CPBundleLocalizedString(@"Delete selected networks", @"Delete selected networks")]
 
     _activateButton = [CPButtonBar plusButton];
-    [_activateButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/check.png"] size:CGSizeMake(16, 16)]];
+    [_activateButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForEnable size:CGSizeMake(16, 16)]];
     [_activateButton setTarget:self];
     [_activateButton setAction:@selector(activateNetwork:)];
     [_activateButton setToolTip:CPBundleLocalizedString(@"Activate selected networks", @"Activate selected networks")];
 
     _deactivateButton = [CPButtonBar plusButton];
-    [_deactivateButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/cancel.png"] size:CGSizeMake(16, 16)]];
+    [_deactivateButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForDisable size:CGSizeMake(16, 16)]];
     [_deactivateButton setTarget:self];
     [_deactivateButton setAction:@selector(deactivateNetwork:)];
     [_deactivateButton setToolTip:CPBundleLocalizedString(@"Deactivate selected networks", @"Deactivate selected networks")];
 
     _editButton  = [CPButtonBar plusButton];
-    [_editButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/edit.png"] size:CGSizeMake(16, 16)]];
+    [_editButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForEdit size:CGSizeMake(16, 16)]];
     [_editButton setTarget:self];
     [_editButton setAction:@selector(editNetwork:)];
     [_editButton setToolTip:CPBundleLocalizedString(@"Edit selected network", @"Edit selected network")];
 
     _editXMLButton = [CPButtonBar plusButton];
-    [_editXMLButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/editxml.png"] size:CGSizeMake(16, 16)]];
+    [_editXMLButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForEditxml size:CGSizeMake(16, 16)]];
     [_editXMLButton setTarget:self];
     [_editXMLButton setAction:@selector(openXMLEditor:)];
     [_editXMLButton setToolTip:CPBundleLocalizedString(@"Open manual XML editor", @"Open manual XML editor")];
@@ -298,7 +316,7 @@ var TNArchipelPushNotificationNetworks          = @"archipel:push:network",
     [[newNetwork IP] setNetmask:@"255.255.0.0"];
 
     [networkController setNetwork:newNetwork];
-    [networkController openWindow:_plusButton];
+    [networkController openWindow:([aSender isKindOfClass:CPMenuItem]) ? tableViewNetworks : aSender];
 }
 
 /*! delete a network
@@ -355,11 +373,8 @@ var TNArchipelPushNotificationNetworks          = @"archipel:push:network",
         }
 
         [networkController setNetwork:networkObject];
-
-        if ([aSender isKindOfClass:CPMenuItem])
-            aSender = _editButton;
         [popoverXMLString close];
-        [networkController openWindow:aSender];
+        [networkController openWindow:([aSender isKindOfClass:CPMenuItem]) ? tableViewNetworks : aSender];
     }
 }
 
@@ -452,7 +467,16 @@ var TNArchipelPushNotificationNetworks          = @"archipel:push:network",
     [fieldXMLString setStringValue:XMLString];
     [networkController closeWindow:nil];
     [popoverXMLString close];
-    [popoverXMLString showRelativeToRect:nil ofView:_editXMLButton preferredEdge:nil]
+
+    if ([aSender isKindOfClass:CPMenuItem])
+    {
+        var rect = [tableViewNetworks rectOfRow:[tableViewNetworks selectedRow]];
+        rect.origin.y += rect.size.height / 2;
+        rect.origin.x += rect.size.width / 2;
+        [popoverXMLString showRelativeToRect:CGRectMake(rect.origin.x, rect.origin.y, 10, 10) ofView:tableViewNetworks preferredEdge:nil];
+    }
+    else
+        [popoverXMLString showRelativeToRect:nil ofView:aSender preferredEdge:nil];
     [popoverXMLString setDefaultButton:buttonDefineXMLString];
 }
 
@@ -752,6 +776,42 @@ var TNArchipelPushNotificationNetworks          = @"archipel:push:network",
     [popoverXMLString close];
     [networkController closeWindow:nil];
     [self setUIAccordingToPermissions];
+}
+/*! Delegate of CPTableView - This will be called when context menu is triggered with right click
+*/
+- (CPMenu)tableView:(CPTableView)aTableView menuForTableColumn:(CPTableColumn)aColumn row:(int)aRow;
+{
+    var selectedIndex = [[tableViewNetworks selectedRowIndexes] firstIndex],
+        conditionTableSelectedRow = ([tableViewNetworks numberOfSelectedRows] != 0),
+        networkObject = conditionTableSelectedRow ? [_datasourceNetworks objectAtIndex:selectedIndex] : nil,
+        conditionNetworkActive = [networkObject isActive];
+
+    if ([aTableView numberOfSelectedRows] > 1)
+        return;
+
+    if (([aTableView numberOfSelectedRows] == 0) && (aTableView == tableViewNetworks))
+    {
+        [_contextualMenu removeAllItems];
+        [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Create a new network",@"Create a new network") action:@selector(addNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForPlus] setTarget:self];
+        return _contextualMenu;
+    }
+
+    [_contextualMenu removeAllItems];
+
+    if (!conditionNetworkActive)
+    {
+        [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Edit",@"Edit") action:@selector(editNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForEdit] setTarget:self];
+        [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Enable", @"Enable") action:@selector(activateNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForEnable] setTarget:self];
+        [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Delete", @"Delete") action:@selector(delNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDelete] setTarget:self];
+    }
+    else
+    {
+        [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Disable",@"Disable") action:@selector(deactivateNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDisable] setTarget:self];
+    }
+
+    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Edit xml definition",@"Edit xml definition") action:@selector(openXMLEditor:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForEditxml] setTarget:self];
+
+    return _contextualMenu;
 }
 
 @end
