@@ -49,6 +49,12 @@ var TNArchipelVMCastsOpenedVMCasts                      = @"TNArchipelVMCastsOpe
     TNArchipelTypeHypervisorVMCastingDeleteAppliance    = @"deleteappliance",
     TNArchipelPushNotificationVMCasting                 = @"archipel:push:vmcasting";
 
+var TNArchipelResourceIconBundleForPlus         = nil,
+    TNArchipelResourceIconBundleForDelete       = nil,
+    TNArchipelResourceIconBundleForDownload     = nil,
+    TNArchipelResourceIconBundleForView         = nil;
+
+
 /*! @defgroup  hypervisorvmcasts Module Hypervisor VMCasts
 
     @desc This module handle the management of VMCasts
@@ -75,6 +81,7 @@ var TNArchipelVMCastsOpenedVMCasts                      = @"TNArchipelVMCastsOpe
     CPButton                                _minusButton;
     CPButton                                _plusButton;
     TNVMCastDatasource                      _castsDatasource;
+    CPMenu                                  _contextualMenu;
 }
 
 #pragma mark -
@@ -86,7 +93,14 @@ var TNArchipelVMCastsOpenedVMCasts                      = @"TNArchipelVMCastsOpe
 {
     [viewTableContainer setBorderedWithHexColor:@"#C0C7D2"];
 
+    _contextualMenu = [[CPMenu alloc] init];
     _castsDatasource = [[TNVMCastDatasource alloc] init];
+
+    // Button Icon bundle init
+    TNArchipelResourceIconBundleForPlus     = [[CPBundle mainBundle] pathForResource:@"IconsButtons/plus.png"];
+    TNArchipelResourceIconBundleForDelete   = [[CPBundle mainBundle] pathForResource:@"IconsButtons/clean.png"];
+    TNArchipelResourceIconBundleForDownload = [[CPBundle mainBundle] pathForResource:@"IconsButtons/download.png"];
+    TNArchipelResourceIconBundleForView     = [[CPBundle mainBundle] pathForResource:@"IconsButtons/view.png"];
 
     _mainOutlineView = [[CPOutlineView alloc] initWithFrame:[mainScrollView bounds]];
     [_mainOutlineView setCornerView:nil];
@@ -149,13 +163,13 @@ var TNArchipelVMCastsOpenedVMCasts                      = @"TNArchipelVMCastsOpe
     [_minusButton setToolTip:CPBundleLocalizedString(@"Unregister from selected VMCast feed", @"Unregister from selected VMCast feed")];
 
     _downloadButton = [CPButtonBar plusButton];
-    [_downloadButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/download.png"] size:CGSizeMake(16, 16)]];
+    [_downloadButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForDownload size:CGSizeMake(16, 16)]];
     [_downloadButton setTarget:self];
     [_downloadButton setAction:@selector(download:)];
     [_downloadButton setToolTip:CPBundleLocalizedString(@"Download selected appliance", @"Download selected appliance")];
 
     _downloadQueueButton = [CPButtonBar plusButton];
-    [_downloadQueueButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/view.png"] size:CGSizeMake(16, 16)]];
+    [_downloadQueueButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForView size:CGSizeMake(16, 16)]];
     [_downloadQueueButton setTarget:self];
     [_downloadQueueButton setAction:@selector(showDownloadQueue:)];
     [_downloadQueueButton setToolTip:CPBundleLocalizedString(@"Open download queue", @"Open download queue")];
@@ -661,9 +675,53 @@ var TNArchipelVMCastsOpenedVMCasts                      = @"TNArchipelVMCastsOpe
     [[defaults objectForKey:@"TNOutlineViewsExpandedGroups"] setObject:@"collapsed" forKey:key];
 }
 
+/*! Delegate of CPOutlineView for Menu
+*/
+- (CPMenu)outlineView:(CPOutlineView)anOutlineView menuForTableColumn:(CPTableColumn)aTableColumn item:(int)anItem
+{
+    if (anOutlineView != _mainOutlineView)
+        return;
+
+    [_contextualMenu removeAllItems];
+
+    if ([anOutlineView numberOfSelectedRows] > 1)
+        return;
+
+    if([anOutlineView numberOfSelectedRows] == 0)
+    {
+       [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Register to a new VMCast feed", @"Register to a new VMCast feed") action:@selector(openNewVMCastURLWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForPlus] setTarget:self];
+       return _contextualMenu;
+    }
+
+    var itemRow = [_mainOutlineView rowForItem:anItem];
+    if ([_mainOutlineView selectedRow] != itemRow)
+        [_mainOutlineView selectRowIndexes:[CPIndexSet indexSetWithIndex:itemRow] byExtendingSelection:NO];
+
+
+    var selectedIndexes = [_mainOutlineView selectedRowIndexes],
+        object          = [_mainOutlineView itemAtRow:[selectedIndexes firstIndex]];
+
+    if ([object isKindOfClass:TNVMCast])
+    {
+        if([object status] == TNArchipelApplianceInstalled)
+        {
+           [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Remove", @"Remove") action:@selector(removeAppliance:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDelete] setTarget:self];
+        }
+        else if (([object status] == TNArchipelApplianceNotInstalled) || ([object status] == TNArchipelApplianceInstallationError))
+        {
+           [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Download", @"Download") action:@selector(download:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDownload] setTarget:self];
+
+        }
+    }
+    else if ([object isKindOfClass:TNVMCastSource])
+    {
+       [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Unregister", @"Unregister") action:@selector(removeVMCast:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDelete] setTarget:self];
+    }
+
+    return _contextualMenu;
+}
+
 @end
-
-
 
 // add this code to make the CPLocalizedString looking at
 // the current bundle.
