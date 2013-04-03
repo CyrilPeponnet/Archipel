@@ -46,10 +46,10 @@ var TNCellApplianceStatusIconInstalled,
 {
     var bundle  = [CPBundle mainBundle];
 
-    TNCellApplianceStatusIconInstalled      = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"IconsStatus/green.png"] size:CGSizeMake(8.0, 8.0)];
-    TNCellApplianceStatusIconNotInstalled   = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"IconsStatus/gray.png"] size:CGSizeMake(8.0, 8.0)];
-    TNCellApplianceStatusIconError          = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"IconsStatus/red.png"] size:CGSizeMake(8.0, 8.0)];
-    TNCellApplianceStatusIconInstalling     = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"spinner.gif"] size:CGSizeMake(8.0, 8.0)];
+    TNCellApplianceStatusIconInstalled      = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"IconsStatus/green.png"] size:CGSizeMake(10.0, 10.0)];
+    TNCellApplianceStatusIconNotInstalled   = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"IconsStatus/gray.png"] size:CGSizeMake(10.0, 10.0)];
+    TNCellApplianceStatusIconError          = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"IconsStatus/red.png"] size:CGSizeMake(10.0, 10.0)];
+    TNCellApplianceStatusIconInstalling     = [[CPImage alloc] initWithContentsOfFile:[bundle pathForResource:@"spinner.gif"] size:CGSizeMake(10.0, 10.0)];
 }
 
 
@@ -59,8 +59,8 @@ var TNCellApplianceStatusIconInstalled,
 {
     if (self = [super init])
     {
-        _imageStatus = [[CPImageView alloc] initWithFrame:CGRectMake(0, 8, 8, 8)];
-        _fieldStatus = [[CPTextField alloc] initWithFrame:CGRectMake(15, 2, 200, 100)];
+        _imageStatus = [[CPImageView alloc] initWithFrame:CGRectMake(0, 8, 10, 10)];
+        _fieldStatus = [[CPTextField alloc] initWithFrame:CGRectMake(15, 5, 200, 100)];
 
         [self addSubview:_imageStatus];
         [self addSubview:_fieldStatus];
