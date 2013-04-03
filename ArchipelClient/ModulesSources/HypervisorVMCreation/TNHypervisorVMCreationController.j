@@ -44,7 +44,19 @@
 @global TNArchipelEntityTypeVirtualMachine
 @global TNArchipelRosterOutlineViewSelectItemNotification
 
-var TNHypervisorVMCreationControllerLibvirtIcon = nil;
+var TNHypervisorVMCreationControllerLibvirtIcon = nil,
+    TNArchipelResourceIconBundleForSubscribe    = nil,
+    TNArchipelResourceIconBundleForUnSubscribe  = nil,
+    TNArchipelResourceIconBundleForNewVM        = nil,
+    TNArchipelResourceIconBundleForClone        = nil,
+    TNArchipelResourceIconBundleForVcard        = nil,
+    TNArchipelResourceIconBundleForManage       = nil,
+    TNArchipelResourceIconBundleForUnmanage     = nil,
+    TNArchipelResourceIconBundleForEditxml      = nil,
+    TNArchipelResourceIconBundleForRemove       = nil,
+    TNArchipelResourceIconBundleForJump         = nil,
+    TNArchipelResourceIconBundleForPark         = nil,
+    TNArchipelResourceIconBundleForUnpark       = nil;
 
 var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control",
     TNArchipelTypeHypervisorControlRosterVM     = @"rostervm",
@@ -100,6 +112,7 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
     TNTableViewDataSource                           _virtualMachinesDatasource;
     TNTableViewDataSource                           _virtualMachinesNotManagedDatasource;
     TNTableViewDataSource                           _virtualMachinesParkedDatasource;
+    CPMenu                                          _contextualMenu;
 }
 
 
@@ -115,9 +128,28 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
     [viewTableContainerParked setBorderedWithHexColor:@"#C0C7D2"];
 
     // tab view
-    var tabViewItemManagedVM = [[CPTabViewItem alloc] initWithIdentifier:@"tabViewItemManagedVM"],
+    var tabViewItemManagedVM    = [[CPTabViewItem alloc] initWithIdentifier:@"tabViewItemManagedVM"],
         tabViewItemNotManagedVM = [[CPTabViewItem alloc] initWithIdentifier:@"tabViewItemNotManagedVM"],
-        tabViewItemParkedVM = [[CPTabViewItem alloc] initWithIdentifier:@"tabViewItemParkedVM"];
+        tabViewItemParkedVM     = [[CPTabViewItem alloc] initWithIdentifier:@"tabViewItemParkedVM"];
+
+    // Button Icon bundle init
+    TNArchipelResourceIconBundleForSubscribe     = [[CPBundle mainBundle] pathForResource:@"IconsButtons/user-add.png"];
+    TNArchipelResourceIconBundleForUnSubscribe   = [[CPBundle mainBundle] pathForResource:@"IconsButtons/user-remove.png"];
+    TNArchipelResourceIconBundleForClone         = [[CPBundle mainBundle] pathForResource:@"IconsButtons/branch.png"];
+    TNArchipelResourceIconBundleForNewVM         = [[CPBundle mainBundle] pathForResource:@"IconsButtons/plus.png"];
+    TNArchipelResourceIconBundleForVcard         = [[CPBundle mainBundle] pathForResource:@"vcard-icon.png"];
+    TNArchipelResourceIconBundleForManage        = [[CPBundle mainBundle] pathForResource:@"IconsButtons/manage.png"];
+    TNArchipelResourceIconBundleForUnmanage      = [[CPBundle mainBundle] pathForResource:@"IconsButtons/unmanage.png"];
+    TNArchipelResourceIconBundleForEditxml       = [[CPBundle mainBundle] pathForResource:@"IconsButtons/editxml.png"];
+    TNArchipelResourceIconBundleForRemove        = [[CPBundle mainBundle] pathForResource:@"IconsButtons/clean.png"];
+    TNArchipelResourceIconBundleForJump          = [[CPBundle bundleForClass:[self class]] pathForResource:@"jump.png"];
+    TNArchipelResourceIconBundleForPark          = [[CPBundle bundleForClass:[self class]] pathForResource:@"park.png"];
+    TNArchipelResourceIconBundleForUnpark        = [[CPBundle bundleForClass:[self class]] pathForResource:@"unpark.png"];
+
+    TNHypervisorVMCreationControllerLibvirtIcon  = [[CPImage alloc] initWithContentsOfFile:[[CPBundle bundleForClass:[self class]] pathForResource:@"libvirt-icon.png"]];
+
+    // contextual menu
+    _contextualMenu = [[CPMenu alloc] init];
 
     [tabViewItemManagedVM setLabel:CPLocalizedString(@"Archipel VMs", @"Archipel VMs")];
     [tabViewItemManagedVM setView:viewItemManagedVMs];
@@ -151,7 +183,7 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
     _plusButton = [CPButtonBar plusButton];
     [_plusButton setTarget:self];
     [_plusButton setAction:@selector(openNewVirtualMachineWindow:)];
-    [_plusButton setToolTip:CPBundleLocalizedString(@"Add a new VM", @"Add a new VM")]
+    [_plusButton setToolTip:CPBundleLocalizedString(@"Add a new VM", @"Add a new VM")];
 
     _minusButton = [CPButtonBar minusButton];
     [_minusButton setTarget:self];
@@ -159,19 +191,19 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
     [_minusButton setToolTip:CPBundleLocalizedString(@"Remove completely selected vms", @"Remove completely selected vms")];
 
     _addSubscriptionButton = [CPButtonBar plusButton];
-    [_addSubscriptionButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/subscription-add.png"] size:CGSizeMake(16, 16)]];
+    [_addSubscriptionButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForSubscribe size:CGSizeMake(16, 16)]];
     [_addSubscriptionButton setTarget:self];
     [_addSubscriptionButton setAction:@selector(openAddSubscriptionWindow:)];
     [_addSubscriptionButton setToolTip:CPBundleLocalizedString(@"VM will ask subscription to given user", @"VM will ask subscription to given user")];
 
     _removeSubscriptionButton = [CPButtonBar plusButton];
-    [_removeSubscriptionButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/subscription-remove.png"] size:CGSizeMake(16, 16)]];
+    [_removeSubscriptionButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForUnSubscribe size:CGSizeMake(16, 16)]];
     [_removeSubscriptionButton setTarget:self];
     [_removeSubscriptionButton setAction:@selector(openRemoveSubscriptionWindow:)];
     [_removeSubscriptionButton setToolTip:CPBundleLocalizedString(@"VM will remove subscription from given user", @"VM will remove subscription from given user")];
 
     _cloneButton = [CPButtonBar minusButton];
-    [_cloneButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/branch.png"] size:CGSizeMake(16, 16)]];
+    [_cloneButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForClone size:CGSizeMake(16, 16)]];
     [_cloneButton setTarget:self];
     [_cloneButton setAction:@selector(openCloneVirtualMachineWindow:)];
     [_cloneButton setToolTip:CPBundleLocalizedString(@"Clone selected VM", @"Clone selected VM")];
@@ -181,21 +213,21 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
     [_removeSubscriptionButton setEnabled:NO];
 
     _unmanageButton = [CPButtonBar minusButton];
-    [_unmanageButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/unmanage.png"] size:CGSizeMake(16, 16)]];
+    [_unmanageButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForUnmanage size:CGSizeMake(16, 16)]];
     [_unmanageButton setTarget:self];
     [_unmanageButton setAction:@selector(unmanageVirtualMachine:)];
     [_unmanageButton setEnabled:NO];
     [_unmanageButton setToolTip:CPBundleLocalizedString(@"Do not use Archipel to manage selected vms. Vms will still be there", @"Do not use Archipel to manage selected vms. Vms will still be there")];
 
     _parkButton = [CPButtonBar plusButton];
-    [_parkButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle bundleForClass:[self class]] pathForResource:@"park.png"] size:CGSizeMake(16, 16)]];
+    [_parkButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForPark size:CGSizeMake(16, 16)]];
     [_parkButton setTarget:self];
     [_parkButton setAction:@selector(parkVirtualMachines:)];
     [_parkButton setEnabled:NO];
     [_parkButton setToolTip:CPBundleLocalizedString(@"Park selected VMs", @"Park selected VMs")];
 
     _jumpButton = [CPButtonBar plusButton];
-    [_jumpButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle bundleForClass:[self class]] pathForResource:@"jump.png"] size:CGSizeMake(16, 16)]];
+    [_jumpButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForJump size:CGSizeMake(16, 16)]];
     [_jumpButton setTarget:self];
     [_jumpButton setAction:@selector(addSelectedVMToRoster:)];
     [_jumpButton setEnabled:NO];
@@ -220,7 +252,7 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
     [tableVirtualMachinesNotManaged setDataSource:_virtualMachinesNotManagedDatasource];
 
     _manageButton = [CPButtonBar plusButton];
-    [_manageButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/manage.png"] size:CGSizeMake(16, 16)]];
+    [_manageButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForManage size:CGSizeMake(16, 16)]];
     [_manageButton setTarget:self];
     [_manageButton setAction:@selector(manageVirtualMachine:)];
     [_manageButton setEnabled:NO];
@@ -246,14 +278,14 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
 
 
     _unparkButton = [CPButtonBar plusButton];
-    [_unparkButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle bundleForClass:[self class]] pathForResource:@"unpark.png"] size:CGSizeMake(16, 16)]];
+    [_unparkButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForUnpark size:CGSizeMake(16, 16)]];
     [_unparkButton setTarget:self];
     [_unparkButton setAction:@selector(unparkVirtualMachines:)];
     [_unparkButton setEnabled:NO];
     [_unparkButton setToolTip:CPBundleLocalizedString(@"Unpark selected VMs into this hypervisor", @"Unpark selected VMs into this hypervisor")];
 
     _editParkedXMLButton = [CPButtonBar plusButton];
-    [_editParkedXMLButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/editxml.png"] size:CGSizeMake(16, 16)]];
+    [_editParkedXMLButton setImage:[[CPImage alloc] initWithContentsOfFile:TNArchipelResourceIconBundleForEditxml size:CGSizeMake(16, 16)]];
     [_editParkedXMLButton setTarget:self];
     [_editParkedXMLButton setAction:@selector(openParkedXMLEditor:)];
     [_editParkedXMLButton setEnabled:NO];
@@ -273,7 +305,6 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
     [VMManagerController setDelegate:self];
     [VMParkingController setDelegate:self];
 
-    TNHypervisorVMCreationControllerLibvirtIcon = [[CPImage alloc] initWithContentsOfFile:[[CPBundle bundleForClass:[self class]] pathForResource:@"libvirt-icon.png"]];
 }
 
 
@@ -673,7 +704,7 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
     }
 
     [VMParkingController setCurrentItem:[_virtualMachinesParkedDatasource objectAtIndex:[tableVirtualMachinesParked selectedRow]]];
-    [VMParkingController openWindow:aSender];
+    [VMParkingController openWindow:([aSender isKindOfClass:CPMenuItem]) ? tableVirtualMachinesParked : aSender];
 }
 
 - (IBAction)deleteParkedVirtualMachines:(id)aSender
@@ -787,7 +818,7 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
          return;
     }
 
-    [VMCloneController openWindow:_cloneButton];
+    [VMCloneController openWindow:([aSender isKindOfClass:CPMenuItem]) ? tableVirtualMachines : aSender];
 }
 
 /*! open the add virtual machine window
@@ -800,7 +831,7 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
     if ([self isVisible])
     {
         [VMAllocationController setVirtualMachine:nil];
-        [VMAllocationController openWindow:_plusButton];
+        [VMAllocationController openWindow:([aSender isKindOfClass:CPMenuItem]) ? tableVirtualMachines : aSender];
     }
 }
 
@@ -821,7 +852,7 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
     {
         var vm = [_virtualMachinesDatasource objectAtIndex:[tableVirtualMachines selectedRow]];
         [VMAllocationController setVirtualMachine:vm];
-        [VMAllocationController openWindow:aSender];
+        [VMAllocationController openWindow:([aSender isKindOfClass:CPMenuItem]) ? tableVirtualMachines : aSender];
     }
 }
 
@@ -842,7 +873,7 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
          return;
     }
 
-    [VMSubscriptionController openAddSubsctiptionWindow:_addSubscriptionButton];
+    [VMSubscriptionController openAddSubsctiptionWindow:([aSender isKindOfClass:CPMenuItem]) ? tableVirtualMachines : aSender];
 }
 
 /*! open the add subscription window
@@ -861,7 +892,7 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
          return;
     }
 
-    [VMSubscriptionController openRemoveSubscriptionWindow:_removeSubscriptionButton];
+    [VMSubscriptionController openRemoveSubscriptionWindow:([aSender isKindOfClass:CPMenuItem]) ? tableVirtualMachines : aSender];
 }
 
 
@@ -989,8 +1020,74 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
     }
 }
 
-@end
+/*! Delegate of CPTableView - This will be called when context menu is triggered with right click
+*/
+- (CPMenu)tableView:(CPTableView)aTableView menuForTableColumn:(CPTableColumn)aColumn row:(int)aRow;
+{
 
+    if ([aTableView numberOfSelectedRows] > 1)
+        return;
+
+    if (([aTableView numberOfSelectedRows] == 0) && (aTableView == tableVirtualMachines))
+    {
+        [_contextualMenu removeAllItems];
+        [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Create a new VM",@"Create a new VM") action:@selector(openNewVirtualMachineWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForNewVM] setTarget:self];
+        return _contextualMenu;
+    }
+
+    switch (aTableView)
+    {
+        case tableVirtualMachines:
+            var itemRow = [tableVirtualMachines rowAtPoint:aRow];
+            if ([tableVirtualMachines selectedRow] != aRow)
+                [tableVirtualMachines selectRowIndexes:[CPIndexSet indexSetWithIndex:aRow] byExtendingSelection:NO];
+
+            if ([[_virtualMachinesDatasource objectAtIndex:[tableVirtualMachines selectedRow]] vCard])
+                {
+                    [_contextualMenu removeAllItems];
+                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"View",@"View") action:@selector(addSelectedVMToRoster:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForJump] setTarget:self];
+                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Clone",@"Clone") action:@selector(openCloneVirtualMachineWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForClone] setTarget:self];
+                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Edit vCard informations",@"Edit vCard informations") action:@selector(openEditVirtualMachineWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForVcard] setTarget:self];
+                    [_contextualMenu addItem:[CPMenuItem separatorItem]];
+                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Add a user subscription", @"Add a user subscription") action:@selector(openAddSubscriptionWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForSubscribe] setTarget:self];
+                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Remove a user subscription",@"Remove a user subscription") action:@selector(openRemoveSubscriptionWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForUnSubscribe] setTarget:self];
+                    [_contextualMenu addItem:[CPMenuItem separatorItem]];
+                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Unmanage",@"Unmanage") action:@selector(unmanageVirtualMachine:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForUnmanage] setTarget:self];
+                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Delete",@"Delete") action:@selector(deleteVirtualMachine:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForRemove] setTarget:self];
+                }
+            else
+                {
+                    [_contextualMenu removeAllItems];
+                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Add to roster",@"Add to roster") action:@selector(addSelectedVMToRoster:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForSubscribe] setTarget:self];
+                }
+            break;
+
+        case tableVirtualMachinesNotManaged:
+            var itemRow = [tableVirtualMachinesNotManaged rowAtPoint:aRow];
+            if ([tableVirtualMachinesNotManaged selectedRow] != aRow)
+                [tableVirtualMachinesNotManaged selectRowIndexes:[CPIndexSet indexSetWithIndex:aRow] byExtendingSelection:NO];
+
+            [_contextualMenu removeAllItems];
+            [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Manage this vm",@"Manage this vm" ) action:@selector(manageVirtualMachine:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForManage] setTarget:self];
+            break;
+
+        case tableVirtualMachinesParked:
+            var itemRow = [tableVirtualMachinesParked rowAtPoint:aRow];
+            if ([tableVirtualMachinesParked selectedRow] != aRow)
+                [tableVirtualMachinesParked selectRowIndexes:[CPIndexSet indexSetWithIndex:aRow] byExtendingSelection:NO];
+            [_contextualMenu removeAllItems];
+            [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Unpark",@"Unpark") action:@selector(unparkVirtualMachines:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForUnpark] setTarget:self];
+            [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Edit xml definition",@"Edit xml definition") action:@selector(openParkedXMLEditor:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForEditxml] setTarget:self];
+            [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Delete",@"Delete") action:@selector(deleteParkedVirtualMachines:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForRemove] setTarget:self];
+            break;
+
+        default:
+            return;
+    }
+
+    return _contextualMenu;
+}
+@end
 
 
 // add this code to make the CPLocalizedString looking at

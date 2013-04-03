@@ -21,6 +21,7 @@
 @import <AppKit/CPButton.j>
 @import <AppKit/CPTextField.j>
 @import <AppKit/CPPopover.j>
+@import <AppKit/CPTableView.j>
 
 @import <LPKit/LPMultiLineTextField.j>
 @import <StropheCappuccino/TNStropheStanza.j>
@@ -63,7 +64,16 @@ var TNArchipelTypeSubscription                  = @"archipel:subscription",
     [fieldNewSubscriptionTarget setStringValue:@""];
 
     [popoverAddSubscription close];
-    [popoverAddSubscription showRelativeToRect:nil ofView:aSender preferredEdge:nil];
+    if ([aSender isKindOfClass:CPTableView])
+    {
+        var rect = [aSender rectOfRow:[aSender selectedRow]];
+        rect.origin.y += rect.size.height / 2;
+        rect.origin.x += rect.size.width / 2;
+        [popoverAddSubscription showRelativeToRect:CGRectMake(rect.origin.x, rect.origin.y, 10, 10) ofView:aSender preferredEdge:nil];
+    }
+    else
+        [popoverAddSubscription showRelativeToRect:nil ofView:aSender preferredEdge:nil];
+
     [popoverAddSubscription setDefaultButton:buttonAddSubscription];
     [popoverAddSubscription makeFirstResponder:fieldNewSubscriptionTarget];
 }
@@ -76,7 +86,15 @@ var TNArchipelTypeSubscription                  = @"archipel:subscription",
     [fieldRemoveSubscriptionTarget setStringValue:@""];
 
     [popoverRemoveSubscription close];
-    [popoverRemoveSubscription showRelativeToRect:nil ofView:aSender preferredEdge:nil];
+    if ([aSender isKindOfClass:CPTableView])
+    {
+        var rect = [aSender rectOfRow:[aSender selectedRow]];
+        rect.origin.y += rect.size.height / 2;
+        rect.origin.x += rect.size.width / 2;
+        [popoverRemoveSubscription showRelativeToRect:CGRectMake(rect.origin.x, rect.origin.y, 10, 10) ofView:aSender preferredEdge:nil];
+    }
+    else
+        [popoverRemoveSubscription showRelativeToRect:nil ofView:aSender preferredEdge:nil];
     [popoverRemoveSubscription makeFirstResponder:fieldRemoveSubscriptionTarget];
     [popoverRemoveSubscription setDefaultButton:buttonRemoveSubscription];
 }
