@@ -689,7 +689,7 @@ var TNArchipelResourceIconBundleForPlus         = nil,
 
     if([anOutlineView numberOfSelectedRows] == 0)
     {
-       [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Register to a new VMCast feed", @"Register to a new VMCast feed") action:@selector(openNewVMCastURLWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForPlus] setTarget:self];
+       [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Register to a new VMCast feed", @"Register to a new VMCast feed") action:@selector(openNewVMCastURLWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForPlus] setTarget:self];
        return _contextualMenu;
     }
 
@@ -705,17 +705,17 @@ var TNArchipelResourceIconBundleForPlus         = nil,
     {
         if([object status] == TNArchipelApplianceInstalled)
         {
-           [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Remove", @"Remove") action:@selector(removeAppliance:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDelete] setTarget:self];
+           [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Remove", @"Remove") action:@selector(removeAppliance:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDelete] setTarget:self];
         }
         else if (([object status] == TNArchipelApplianceNotInstalled) || ([object status] == TNArchipelApplianceInstallationError))
         {
-           [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Download", @"Download") action:@selector(download:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDownload] setTarget:self];
+           [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Download", @"Download") action:@selector(download:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDownload] setTarget:self];
 
         }
     }
     else if ([object isKindOfClass:TNVMCastSource])
     {
-       [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Unregister", @"Unregister") action:@selector(removeVMCast:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDelete] setTarget:self];
+       [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Unregister", @"Unregister") action:@selector(removeVMCast:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDelete] setTarget:self];
     }
 
     return _contextualMenu;

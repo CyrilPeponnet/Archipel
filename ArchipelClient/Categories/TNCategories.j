@@ -25,7 +25,7 @@
 @import "CPDate+Format.j"
 @import "CPObject+Duplication.j"
 @import "CPOutlineView+Extend.j"
-@import "CPMenu+addItemWithImage.j"
+@import "CPMenu+addMenuItemWithTitle.j"
 @import "CPPlatformWindow+Title.j"
 @import "CPPopover+TNAttachedWindowAPI.j"
 @import "CPSegmentedControl+SegmentView.j"

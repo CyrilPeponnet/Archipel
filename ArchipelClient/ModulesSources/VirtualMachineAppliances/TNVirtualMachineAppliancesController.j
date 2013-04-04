@@ -89,8 +89,8 @@ var TNArchipelTypeVirtualMachineVMCasting           = @"archipel:virtualmachine:
     [fieldFilterAppliance setAction:@selector(filterObjects:)];
 
     var menu = [[CPMenu alloc] init];
-    [menu addItemWithTitle:@"Install" action:@selector(attach:) keyEquivalent:@""];
-    [menu addItemWithTitle:@"Detach" action:@selector(detach:) keyEquivalent:@""];
+    [menu addItemWithTitle:CPBundleLocalizedString(@"Install", @"Install") action:@selector(attach:) keyEquivalent:@""];
+    [menu addItemWithTitle:CPBundleLocalizedString(@"Detach", @"Detach") action:@selector(detach:) keyEquivalent:@""];
     [tableAppliances setMenu:menu];
 
     _packageButton  = [CPButtonBar plusButton];

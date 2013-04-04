@@ -792,7 +792,7 @@ var TNArchipelResourceIconBundleForPlus         = nil,
     if (([aTableView numberOfSelectedRows] == 0) && (aTableView == tableViewNetworks))
     {
         [_contextualMenu removeAllItems];
-        [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Create a new network",@"Create a new network") action:@selector(addNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForPlus] setTarget:self];
+        [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Create a new network",@"Create a new network") action:@selector(addNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForPlus] setTarget:self];
         return _contextualMenu;
     }
 
@@ -800,16 +800,16 @@ var TNArchipelResourceIconBundleForPlus         = nil,
 
     if (!conditionNetworkActive)
     {
-        [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Edit",@"Edit") action:@selector(editNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForEdit] setTarget:self];
-        [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Enable", @"Enable") action:@selector(activateNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForEnable] setTarget:self];
-        [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Delete", @"Delete") action:@selector(delNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDelete] setTarget:self];
+        [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Edit",@"Edit") action:@selector(editNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForEdit] setTarget:self];
+        [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Enable", @"Enable") action:@selector(activateNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForEnable] setTarget:self];
+        [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Delete", @"Delete") action:@selector(delNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDelete] setTarget:self];
     }
     else
     {
-        [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Disable",@"Disable") action:@selector(deactivateNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDisable] setTarget:self];
+        [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Disable",@"Disable") action:@selector(deactivateNetwork:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForDisable] setTarget:self];
     }
 
-    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Edit xml definition",@"Edit xml definition") action:@selector(openXMLEditor:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForEditxml] setTarget:self];
+    [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Edit xml definition",@"Edit xml definition") action:@selector(openXMLEditor:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForEditxml] setTarget:self];
 
     return _contextualMenu;
 }

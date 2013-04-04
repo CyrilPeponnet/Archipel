@@ -1031,7 +1031,7 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
     if (([aTableView numberOfSelectedRows] == 0) && (aTableView == tableVirtualMachines))
     {
         [_contextualMenu removeAllItems];
-        [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Create a new VM",@"Create a new VM") action:@selector(openNewVirtualMachineWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForNewVM] setTarget:self];
+        [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Create a new VM",@"Create a new VM") action:@selector(openNewVirtualMachineWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForNewVM] setTarget:self];
         return _contextualMenu;
     }
 
@@ -1045,20 +1045,20 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
             if ([[_virtualMachinesDatasource objectAtIndex:[tableVirtualMachines selectedRow]] vCard])
                 {
                     [_contextualMenu removeAllItems];
-                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"View",@"View") action:@selector(addSelectedVMToRoster:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForJump] setTarget:self];
-                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Clone",@"Clone") action:@selector(openCloneVirtualMachineWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForClone] setTarget:self];
-                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Edit vCard informations",@"Edit vCard informations") action:@selector(openEditVirtualMachineWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForVcard] setTarget:self];
+                    [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"View",@"View") action:@selector(addSelectedVMToRoster:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForJump] setTarget:self];
+                    [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Clone",@"Clone") action:@selector(openCloneVirtualMachineWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForClone] setTarget:self];
+                    [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Edit vCard informations",@"Edit vCard informations") action:@selector(openEditVirtualMachineWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForVcard] setTarget:self];
                     [_contextualMenu addItem:[CPMenuItem separatorItem]];
-                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Add a user subscription", @"Add a user subscription") action:@selector(openAddSubscriptionWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForSubscribe] setTarget:self];
-                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Remove a user subscription",@"Remove a user subscription") action:@selector(openRemoveSubscriptionWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForUnSubscribe] setTarget:self];
+                    [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Add a user subscription", @"Add a user subscription") action:@selector(openAddSubscriptionWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForSubscribe] setTarget:self];
+                    [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Remove a user subscription",@"Remove a user subscription") action:@selector(openRemoveSubscriptionWindow:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForUnSubscribe] setTarget:self];
                     [_contextualMenu addItem:[CPMenuItem separatorItem]];
-                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Unmanage",@"Unmanage") action:@selector(unmanageVirtualMachine:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForUnmanage] setTarget:self];
-                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Delete",@"Delete") action:@selector(deleteVirtualMachine:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForRemove] setTarget:self];
+                    [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Unmanage",@"Unmanage") action:@selector(unmanageVirtualMachine:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForUnmanage] setTarget:self];
+                    [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Delete",@"Delete") action:@selector(deleteVirtualMachine:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForRemove] setTarget:self];
                 }
             else
                 {
                     [_contextualMenu removeAllItems];
-                    [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Add to roster",@"Add to roster") action:@selector(addSelectedVMToRoster:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForSubscribe] setTarget:self];
+                    [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Add to roster",@"Add to roster") action:@selector(addSelectedVMToRoster:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForSubscribe] setTarget:self];
                 }
             break;
 
@@ -1068,7 +1068,7 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
                 [tableVirtualMachinesNotManaged selectRowIndexes:[CPIndexSet indexSetWithIndex:aRow] byExtendingSelection:NO];
 
             [_contextualMenu removeAllItems];
-            [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Manage this vm",@"Manage this vm" ) action:@selector(manageVirtualMachine:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForManage] setTarget:self];
+            [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Manage this vm",@"Manage this vm" ) action:@selector(manageVirtualMachine:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForManage] setTarget:self];
             break;
 
         case tableVirtualMachinesParked:
@@ -1076,9 +1076,9 @@ var TNArchipelTypeHypervisorControl             = @"archipel:hypervisor:control"
             if ([tableVirtualMachinesParked selectedRow] != aRow)
                 [tableVirtualMachinesParked selectRowIndexes:[CPIndexSet indexSetWithIndex:aRow] byExtendingSelection:NO];
             [_contextualMenu removeAllItems];
-            [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Unpark",@"Unpark") action:@selector(unparkVirtualMachines:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForUnpark] setTarget:self];
-            [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Edit xml definition",@"Edit xml definition") action:@selector(openParkedXMLEditor:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForEditxml] setTarget:self];
-            [[_contextualMenu addItemWithImage:CPBundleLocalizedString(@"Delete",@"Delete") action:@selector(deleteParkedVirtualMachines:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForRemove] setTarget:self];
+            [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Unpark",@"Unpark") action:@selector(unparkVirtualMachines:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForUnpark] setTarget:self];
+            [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Edit xml definition",@"Edit xml definition") action:@selector(openParkedXMLEditor:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForEditxml] setTarget:self];
+            [[_contextualMenu addMenuItemWithTitle:CPBundleLocalizedString(@"Delete",@"Delete") action:@selector(deleteParkedVirtualMachines:) keyEquivalent:@"" bundleImage:TNArchipelResourceIconBundleForRemove] setTarget:self];
             break;
 
         default:

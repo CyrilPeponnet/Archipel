@@ -1,5 +1,5 @@
 /*
- * CPMenu+addItemWithImage.j
+ * CPMenu+addMenuItemWithTitle.j
  *
  * Copyright (C) 2013 Cyril Peponnet <cyril@peponnet.fr>
  * This program is free software: you can redistribute it and/or modify
@@ -20,11 +20,11 @@
 
 
 /*! @ingroup categories
-    add a custom addItemWithImage function
+    add a custom addMenuItemWithTitle function
 */
-@implementation CPMenu (addItemWithImage)
+@implementation CPMenu (addMenuItemWithTitle)
 
-- (CPMenuItem)addItemWithImage:(CPString)aTitle action:(SEL)anAction keyEquivalent:(CPString)aKeyEquivalent bundleImage:(CPBundle)aBundle
+- (CPMenuItem)addMenuItemWithTitle:(CPString)aTitle action:(SEL)anAction keyEquivalent:(CPString)aKeyEquivalent bundleImage:(CPBundle)aBundle
 {
 	var image = [[CPImage alloc] initWithContentsOfFile:aBundle size:CGSizeMake(12, 12)],
 		item  = [[CPMenuItem alloc] initWithTitle:(@"  " + aTitle) action:anAction keyEquivalent:aKeyEquivalent];
