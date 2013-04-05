@@ -18,6 +18,7 @@
 
 @import <Foundation/Foundation.j>
 
+@import <AppKit/CPButtonBar.j>
 @import <AppKit/CPImage.j>
 @import <AppKit/CPImageView.j>
 @import <AppKit/CPMenu.j>
@@ -101,6 +102,7 @@ var TNModuleStatusImageReady,
     CPArray                         _supportedEntityTypes       @accessors(property=supportedEntityTypes);
     CPBundle                        _bundle                     @accessors(property=bundle);
     CPMenu                          _menu                       @accessors(property=menu);
+    CPMenu                          _contextualMenu             @accessors(property=contextualMenu);
     CPMenu                          _rosterContactsMenu         @accessors(property=rosterContactsMenu);
     CPMenu                          _rosterGroupsMenu           @accessors(property=rosterGroupsMenu);
     CPMenuItem                      _menuItem                   @accessors(property=menuItem);
@@ -119,6 +121,8 @@ var TNModuleStatusImageReady,
 
     CPArray                         _initialPermissionsReceived;
     CPDictionary                    _registredSelectors;
+    CPDictionary                    _addedButtonBars;
+    CPDictionary                    _addedMenuItems;
 }
 
 
@@ -143,6 +147,9 @@ var TNModuleStatusImageReady,
     _isCurrentSelectedIndex     = NO;
     _initialPermissionsReceived = [CPArray array];
     _registredSelectors         = [CPDictionary dictionary];
+    _addedButtonBars            = [CPDictionary dictionary];
+    _addedMenuItems             = [CPDictionary dictionary];
+    _contextualMenu             = [[CPMenu alloc] init];
 
     [[self view] applyShadow];
     [[TNPermissionsCenter defaultCenter] addDelegate:self];
@@ -151,6 +158,65 @@ var TNModuleStatusImageReady,
 
 #pragma mark -
 #pragma mark Setters and Getters
+
+/* add controls to create button / menuItems
+    @param anIdentifier the identifier of the control
+    @param aTitle the title of the control
+    @param aTarget the target of the control
+    @param aSelector the selector to perform
+    @param aKeyEquivalent the shortcut key equivalence
+    @param anImage the image to use for control
+*/
+- (void)addControlsWithIdentifier:(CPString)anIdentifier title:(CPString)aTitle target:(id)aTarget action:(SEL)aSelector image:(CPString)anImage
+{
+    // add a new buttonbar to dict
+    var _button = [CPButtonBar plusButton];
+    [_button setTarget:aTarget];
+    [_button setAction:aSelector];
+    [_button setToolTip:aTitle];
+    [_button setImage:[[CPImage alloc] initWithContentsOfFile:anImage size:CGSizeMake(16,16)]];
+
+    [_addedButtonBars setObject:_button forKey:anIdentifier];
+
+    // add a new CPMenuItem to dict
+
+    var _item = [[CPMenuItem alloc] initWithTitle:(@"  " + aTitle) action:aSelector];
+    [_item setImage:[[CPImage alloc] initWithContentsOfFile:anImage size:CGSizeMake(16,16)]];
+    [_item setTarget:aTarget];
+
+    [_addedMenuItems setObject:_item forKey:anIdentifier];
+
+}
+
+/* return the button with identifier
+    @param anIdentifier the identifier of the item
+*/
+- (CPButtonBar)buttonWithIdentifier:(CPString)anIdentifier
+{
+    return [_addedButtonBars objectForKey:anIdentifier];
+}
+
+/* return an array with all button
+*/
+- (CPArray)getAllButtonItems
+{
+    return [_addedButtonBars allValues];
+}
+
+/* return the MenuItem with identifier
+    @param anIdentifier the identifier of the item
+*/
+- (CPMenuItem)menuItemWithIdentifier:(CPString)anIdentifier
+{
+    return [_addedMenuItems objectForKey:anIdentifier];
+}
+
+/* return an array with all menu items
+*/
+- (CPArray)getAllMenuItems
+{
+    return [_addedMenuItems allValues];
+}
 
 /*! @ignore
     we need to archive and unarchive to get a proper copy of the view

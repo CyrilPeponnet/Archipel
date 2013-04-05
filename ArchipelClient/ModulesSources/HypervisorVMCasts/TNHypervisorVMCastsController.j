@@ -49,6 +49,11 @@ var TNArchipelVMCastsOpenedVMCasts                      = @"TNArchipelVMCastsOpe
     TNArchipelTypeHypervisorVMCastingDeleteAppliance    = @"deleteappliance",
     TNArchipelPushNotificationVMCasting                 = @"archipel:push:vmcasting";
 
+
+var TNControlItemDownload      = "download",
+    TNControlitemDownloadQueue = "downloadQueue";
+
+
 /*! @defgroup  hypervisorvmcasts Module Hypervisor VMCasts
 
     @desc This module handle the management of VMCasts
@@ -70,8 +75,6 @@ var TNArchipelVMCastsOpenedVMCasts                      = @"TNArchipelVMCastsOpe
 
     CPOutlineView                           _mainOutlineView        @accessors(getter=mainOutlineView);
 
-    CPButton                                _downloadButton;
-    CPButton                                _downloadQueueButton;
     CPButton                                _minusButton;
     CPButton                                _plusButton;
     TNVMCastDatasource                      _castsDatasource;
@@ -148,22 +151,15 @@ var TNArchipelVMCastsOpenedVMCasts                      = @"TNArchipelVMCastsOpe
     [_minusButton setAction:@selector(remove:)];
     [_minusButton setToolTip:CPBundleLocalizedString(@"Unregister from selected VMCast feed", @"Unregister from selected VMCast feed")];
 
-    _downloadButton = [CPButtonBar plusButton];
-    [_downloadButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/download.png"] size:CGSizeMake(16, 16)]];
-    [_downloadButton setTarget:self];
-    [_downloadButton setAction:@selector(download:)];
-    [_downloadButton setToolTip:CPBundleLocalizedString(@"Download selected appliance", @"Download selected appliance")];
-
-    _downloadQueueButton = [CPButtonBar plusButton];
-    [_downloadQueueButton setImage:[[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:@"IconsButtons/view.png"] size:CGSizeMake(16, 16)]];
-    [_downloadQueueButton setTarget:self];
-    [_downloadQueueButton setAction:@selector(showDownloadQueue:)];
-    [_downloadQueueButton setToolTip:CPBundleLocalizedString(@"Open download queue", @"Open download queue")];
+    // new menuBar management
+    [self addControlsWithIdentifier:TNControlItemDownload title:CPBundleLocalizedString(@"Download selected appliance", @"Download selected appliance") target:self action:@selector(download:) image:[[CPBundle mainBundle] pathForResource:@"IconsButtons/download.png"]];
+    [self addControlsWithIdentifier:TNControlitemDownloadQueue title:CPBundleLocalizedString(@"Open download queue",@"Open download queue") target:self action:@selector(showDownloadQueue:) image:[[CPBundle mainBundle] pathForResource:@"IconsButtons/view.png"]];
 
     [_minusButton setEnabled:NO];
-    [_downloadButton setEnabled:NO];
+    [[self buttonWithIdentifier:TNControlItemDownload] setEnabled:NO];
 
-    [buttonBarControl setButtons:[_plusButton, _minusButton, _downloadButton, _downloadQueueButton]];
+    // set it once, it will fetch all the buttons
+    [buttonBarControl setButtons:[self getAllButtonItems]];
 
     [VMCastRegistrationController setDelegate:self];
     [downloadQueueController setDelegate:self];
@@ -203,19 +199,6 @@ var TNArchipelVMCastsOpenedVMCasts                      = @"TNArchipelVMCastsOpe
     [super willHide];
 }
 
-/*! called when MainMenu is ready
-*/
-- (void)menuReady
-{
-    [[_menu addItemWithTitle:CPBundleLocalizedString(@"Register to a new VMCasts", @"Register to a new VMCasts") action:@selector(openNewVMCastURLWindow:) keyEquivalent:@""] setTarget:self];
-    [[_menu addItemWithTitle:CPBundleLocalizedString(@"Unregister from selected VMCast", @"Unregister from selected VMCast") action:@selector(removeVMCast:) keyEquivalent:@""] setTarget:self];
-    [_menu addItem:[CPMenuItem separatorItem]];
-    [[_menu addItemWithTitle:CPBundleLocalizedString(@"Download selected appliance", @"Download selected appliance") action:@selector(download:) keyEquivalent:@""] setTarget:self];
-    [[_menu addItemWithTitle:CPBundleLocalizedString(@"Remove selected appliance", @"Remove selected appliance") action:@selector(removeAppliance:) keyEquivalent:@""] setTarget:self];
-    [_menu addItem:[CPMenuItem separatorItem]];
-    [[_menu addItemWithTitle:CPBundleLocalizedString(@"Show activity monitor", @"Show activity monitor") action:@selector(showDownloadQueue:) keyEquivalent:@""] setTarget:self];
-}
-
 /*! called when permissions changes
 */
 - (void)permissionsChanged
@@ -228,7 +211,7 @@ var TNArchipelVMCastsOpenedVMCasts                      = @"TNArchipelVMCastsOpe
 */
 - (void)setUIAccordingToPermissions
 {
-    [self setControl:_downloadQueueButton enabledAccordingToPermission:@"vmcasting_downloadqueue"];
+    [self setControl:[self buttonWithIdentifier:TNControlitemDownloadQueue] enabledAccordingToPermission:@"vmcasting_downloadqueue"];
     [self setControl:_plusButton enabledAccordingToPermission:@"vmcasting_register"];
 
     if (![self currentEntityHasPermission:@"vmcasting_downloadqueue"])
@@ -405,7 +388,7 @@ var TNArchipelVMCastsOpenedVMCasts                      = @"TNArchipelVMCastsOpe
     if (![self isVisible])
         return;
 
-    [downloadQueueController showWindow:_downloadQueueButton];
+    [downloadQueueController showWindow:[self buttonWithIdentifier:TNControlitemDownloadQueue]];
 }
 
 
@@ -620,7 +603,7 @@ var TNArchipelVMCastsOpenedVMCasts                      = @"TNArchipelVMCastsOpe
 - (void)outlineViewSelectionDidChange:(CPNotification)aNotification
 {
     [_minusButton setEnabled:NO];
-    [_downloadButton setEnabled:NO];
+    [[self buttonWithIdentifier:TNControlItemDownload] setEnabled:NO];
 
     if ([_mainOutlineView numberOfSelectedRows] > 0)
     {
@@ -632,13 +615,13 @@ var TNArchipelVMCastsOpenedVMCasts                      = @"TNArchipelVMCastsOpe
             var conditionNotInstalled = (([object status] == TNArchipelApplianceNotInstalled) || ([object status] == TNArchipelApplianceInstallationError)),
                 conditionInstalled = ([object status] == TNArchipelApplianceInstalled);
 
-            [self setControl:_downloadButton enabledAccordingToPermission:@"vmcasting_downloadappliance" specialCondition:conditionNotInstalled];
+            [self setControl:[self buttonWithIdentifier:TNControlItemDownload] enabledAccordingToPermission:@"vmcasting_downloadappliance" specialCondition:conditionNotInstalled];
             [self setControl:_minusButton enabledAccordingToPermission:@"vmcasting_deleteappliance" specialCondition:conditionInstalled];
         }
         else if ([object isKindOfClass:TNVMCastSource])
         {
             [self setControl:_minusButton enabledAccordingToPermission:@"vmcasting_unregister"];
-            [_downloadButton setEnabled:NO]
+            [[self buttonWithIdentifier:TNControlItemDownload] setEnabled:NO]
         }
     }
 }
@@ -659,6 +642,27 @@ var TNArchipelVMCastsOpenedVMCasts                      = @"TNArchipelVMCastsOpe
         key         = TNArchipelVMCastsOpenedVMCasts + [item name];
 
     [[defaults objectForKey:@"TNOutlineViewsExpandedGroups"] setObject:@"collapsed" forKey:key];
+}
+
+/*! Delegate of CPOutlineView for Menu
+*/
+- (CPMenu)outlineView:(CPOutlineView)anOutlineView menuForTableColumn:(CPTableColumn)aTableColumn item:(int)anItem
+{
+    if ((anOutlineView != _mainOutlineView) || ([anOutlineView numberOfSelectedRows] > 1))
+        return;
+
+    [_contextualMenu removeAllItems];
+
+    var itemRow = [_mainOutlineView rowForItem:anItem];
+    if ([_mainOutlineView selectedRow] != itemRow)
+        [_mainOutlineView selectRowIndexes:[CPIndexSet indexSetWithIndex:itemRow] byExtendingSelection:NO];
+
+
+    var selectedIndexes = [_mainOutlineView selectedRowIndexes],
+        object          = [_mainOutlineView itemAtRow:[selectedIndexes firstIndex]];
+
+    [_contextualMenu addItem:[self menuItemWithIdentifier:TNControlItemDownload]];
+    return _contextualMenu;
 }
 
 @end
