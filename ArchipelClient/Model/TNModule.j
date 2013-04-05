@@ -121,8 +121,8 @@ var TNModuleStatusImageReady,
 
     CPArray                         _initialPermissionsReceived;
     CPDictionary                    _registredSelectors;
-    CPDictionary                    _addedButtonBars;
-    CPDictionary                    _addedMenuItems;
+    CPDictionary                    _buttonsBarButtonsRegistry;
+    CPDictionary                    _contextualMenuItemRegistry;
 }
 
 
@@ -147,8 +147,8 @@ var TNModuleStatusImageReady,
     _isCurrentSelectedIndex     = NO;
     _initialPermissionsReceived = [CPArray array];
     _registredSelectors         = [CPDictionary dictionary];
-    _addedButtonBars            = [CPDictionary dictionary];
-    _addedMenuItems             = [CPDictionary dictionary];
+    _buttonsBarButtonsRegistry  = [CPDictionary dictionary];
+    _contextualMenuItemRegistry = [CPDictionary dictionary];
     _contextualMenu             = [[CPMenu alloc] init];
 
     [[self view] applyShadow];
@@ -167,24 +167,25 @@ var TNModuleStatusImageReady,
     @param aKeyEquivalent the shortcut key equivalence
     @param anImage the image to use for control
 */
-- (void)addControlsWithIdentifier:(CPString)anIdentifier title:(CPString)aTitle target:(id)aTarget action:(SEL)aSelector image:(CPString)anImage
+- (void)addControlsWithIdentifier:(CPString)anIdentifier title:(CPString)aTitle target:(id)aTarget action:(SEL)aSelector image:(CPImage)anImage
 {
+    [anImage setSize:CPSizeMake(16.0, 16.0)];
+
     // add a new buttonbar to dict
     var _button = [CPButtonBar plusButton];
     [_button setTarget:aTarget];
     [_button setAction:aSelector];
     [_button setToolTip:aTitle];
-    [_button setImage:[[CPImage alloc] initWithContentsOfFile:anImage size:CGSizeMake(16,16)]];
+    [_button setImage:anImage];
 
-    [_addedButtonBars setObject:_button forKey:anIdentifier];
+    [_buttonsBarButtonsRegistry setObject:_button forKey:anIdentifier];
 
     // add a new CPMenuItem to dict
-
-    var _item = [[CPMenuItem alloc] initWithTitle:(@"  " + aTitle) action:aSelector];
-    [_item setImage:[[CPImage alloc] initWithContentsOfFile:anImage size:CGSizeMake(16,16)]];
+    var _item = [[CPMenuItem alloc] initWithTitle:(@"  " + aTitle) action:aSelector keyEquivalent:nil];
+    [_item setImage:anImage];
     [_item setTarget:aTarget];
 
-    [_addedMenuItems setObject:_item forKey:anIdentifier];
+    [_contextualMenuItemRegistry setObject:_item forKey:anIdentifier];
 
 }
 
@@ -193,14 +194,14 @@ var TNModuleStatusImageReady,
 */
 - (CPButtonBar)buttonWithIdentifier:(CPString)anIdentifier
 {
-    return [_addedButtonBars objectForKey:anIdentifier];
+    return [_buttonsBarButtonsRegistry objectForKey:anIdentifier];
 }
 
 /* return an array with all button
 */
-- (CPArray)getAllButtonItems
+- (CPArray)allButtonsBarButtons
 {
-    return [_addedButtonBars allValues];
+    return [_buttonsBarButtonsRegistry allValues];
 }
 
 /* return the MenuItem with identifier
@@ -208,14 +209,14 @@ var TNModuleStatusImageReady,
 */
 - (CPMenuItem)menuItemWithIdentifier:(CPString)anIdentifier
 {
-    return [_addedMenuItems objectForKey:anIdentifier];
+    return [_contextualMenuItemRegistry objectForKey:anIdentifier];
 }
 
 /* return an array with all menu items
 */
-- (CPArray)getAllMenuItems
+- (CPArray)allMenuItems
 {
-    return [_addedMenuItems allValues];
+    return [_contextualMenuItemRegistry allValues];
 }
 
 /*! @ignore

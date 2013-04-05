@@ -152,14 +152,14 @@ var TNControlItemDownload      = "download",
     [_minusButton setToolTip:CPBundleLocalizedString(@"Unregister from selected VMCast feed", @"Unregister from selected VMCast feed")];
 
     // new menuBar management
-    [self addControlsWithIdentifier:TNControlItemDownload title:CPBundleLocalizedString(@"Download selected appliance", @"Download selected appliance") target:self action:@selector(download:) image:[[CPBundle mainBundle] pathForResource:@"IconsButtons/download.png"]];
-    [self addControlsWithIdentifier:TNControlitemDownloadQueue title:CPBundleLocalizedString(@"Open download queue",@"Open download queue") target:self action:@selector(showDownloadQueue:) image:[[CPBundle mainBundle] pathForResource:@"IconsButtons/view.png"]];
+    [self addControlsWithIdentifier:TNControlItemDownload title:CPBundleLocalizedString(@"Download selected appliance", @"Download selected appliance") target:self action:@selector(download:) image:CPImageInBundle(@"IconsButtons/download.png",nil, [CPBundle mainBundle])];
+    [self addControlsWithIdentifier:TNControlitemDownloadQueue title:CPBundleLocalizedString(@"Open download queue",@"Open download queue") target:self action:@selector(showDownloadQueue:) image:CPImageInBundle(@"IconsButtons/view.png",nil, [CPBundle mainBundle])];
 
     [_minusButton setEnabled:NO];
     [[self buttonWithIdentifier:TNControlItemDownload] setEnabled:NO];
 
     // set it once, it will fetch all the buttons
-    [buttonBarControl setButtons:[self getAllButtonItems]];
+    [buttonBarControl setButtons:[self allButtonsBarButtons]];
 
     [VMCastRegistrationController setDelegate:self];
     [downloadQueueController setDelegate:self];
