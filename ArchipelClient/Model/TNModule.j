@@ -184,6 +184,7 @@ var TNModuleStatusImageReady,
     var _item = [[CPMenuItem alloc] initWithTitle:(@"  " + aTitle) action:aSelector keyEquivalent:nil];
     [_item setImage:anImage];
     [_item setTarget:aTarget];
+    [_item bind:@"enabled" toObject:_button withKeyPath:@"enabled" options:nil];
 
     [_contextualMenuItemRegistry setObject:_item forKey:anIdentifier];
 
