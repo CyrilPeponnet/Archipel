@@ -270,6 +270,8 @@ class TNXMPPServerController (xmppserver_base.TNXMPPServerControllerBase):
         else:
             send_filtered_users(base_reply)
 
+    ### SRG manged by XMLRPC only
+
     def group_create(self, ID, name, description):
         """
         Not supported in XMPP API
