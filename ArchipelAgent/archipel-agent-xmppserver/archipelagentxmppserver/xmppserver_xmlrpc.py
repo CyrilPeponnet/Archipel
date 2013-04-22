@@ -21,11 +21,11 @@
 
 import xmlrpclib
 import xmpp
+import xmppserver_xmpp
 
 from archipelcore.utils import build_error_iq
-from xmppserver_base import TNXMPPServerControllerBase
 
-class TNXMPPServerController (TNXMPPServerControllerBase):
+class TNXMPPServerController (xmppserver_xmpp.TNXMPPServerController):
 
     def __init__(self, configuration, entity, entry_point_group):
         """
@@ -37,7 +37,7 @@ class TNXMPPServerController (TNXMPPServerControllerBase):
         @type entry_point_group: string
         @param entry_point_group: the group name of plugin entry_point
         """
-        TNXMPPServerControllerBase.__init__(self, configuration=configuration, entity=entity, entry_point_group=entry_point_group)
+        TNXMPPServerController.__init__(self, configuration=configuration, entity=entity, entry_point_group=entry_point_group)
         self.xmpp_server        = entity.jid.getDomain()
         self.xmlrpc_host        = self.configuration.get("XMPPSERVER", "xmlrpc_host")
         self.xmlrpc_port        = self.configuration.getint("XMPPSERVER", "xmlrpc_port")
@@ -46,7 +46,7 @@ class TNXMPPServerController (TNXMPPServerControllerBase):
         self.xmlrpc_prefix       = "https" if self.configuration.getboolean("XMPPSERVER","xmlrpc_sslonly") else "http"
         self.xmlrpc_call        = "%s://%s:%s@%s:%s/" % (self.xmlrpc_prefix, self.xmlrpc_user, self.xmlrpc_password, self.xmlrpc_host, self.xmlrpc_port)
         self.xmlrpc_server      = xmlrpclib.ServerProxy(self.xmlrpc_call)
-        self.entity.log.info("XMPPSERVER: Module is using XMLRPC API for managing XMPP server")
+        self.entity.log.info("XMPPSERVER: Module is using XMLRPC API for managing shared roster groups")
 
 
     def _send_xmlrpc_call(self, method, args):
