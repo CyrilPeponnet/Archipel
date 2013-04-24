@@ -39,6 +39,7 @@ ARCHIPEL_ERROR_CODE_XMPPSERVER_USERS_LIST           = -10006
 ARCHIPEL_ERROR_CODE_XMPPSERVER_USERS_REGISTER       = -10007
 ARCHIPEL_ERROR_CODE_XMPPSERVER_USERS_UNREGISTER     = -10008
 ARCHIPEL_ERROR_CODE_XMPPSERVER_USERS_FILTER         = -10009
+ARCHIPEL_ERROR_CODE_XMPPSERVER_USERS_CHANGEPASSWORD = -10010
 
 
 class TNXMPPServerController (TNArchipelPlugin):
@@ -425,7 +426,37 @@ class TNXMPPServerController (TNArchipelPlugin):
         else:
             send_filtered_users(base_reply)
 
-## TNXMPPServerController xmlrpc implementation
+    def users_change_password(self, users):
+        """
+        Change password for users
+        @type users: list
+        @param users: list of users to change password
+        """
+        def on_receive_password_changed(conn, iq):
+            if iq.getType() == "result":
+                for user in users:
+                    self.users.append({"jid": user["jid"].getStripped(), "type": "human"})
+                self.entities_types_cache[user["jid"].getStripped()] = "human"
+                self.entity.log.info("XMPPSERVER: Successfully changed paswword for user(s).")
+                self.entity.push_change("xmppserver:users", "passwordchanged")
+            else:
+                self.entity.push_change("xmppserver:users", "changepassworderror", content_node=iq)
+                self.entity.log.error("XMPPSERVER: Unable to change password for user. %s" % str(iq))
+        server = self.entity.jid.getDomain()
+        for user in users:
+            iq = xmpp.Iq(typ="set", to=self.entity.jid.getDomain())
+            iq_command = iq.addChild("command", namespace="http://jabber.org/protocol/commands", attrs={"node": "http://jabber.org/protocol/admin#change-user-password"})
+            iq_command_x = iq_command.addChild("x", namespace="jabber:x:data", attrs={"type": "submit"})
+            iq_command_x.addChild("field", attrs={"type": "hidden", "var": "FORM_TYPE"}).addChild("value").setData("http://jabber.org/protocol/admin")
+            iq_command_x.addChild("field", attrs={"var": "accountjid"}).addChild("value").setData(user["jid"])
+            iq_command_x.addChild("field", attrs={"var": "password"}).addChild("value").setData(user["password"])
+            if self.entity.__class__.__name__ == "TNArchipelVirtualMachine":
+                self.entity.hypervisor.xmppclient.SendAndCallForResponse(iq, on_receive_password_changed)
+            else:
+                self.entity.xmppclient.SendAndCallForResponse(iq, on_receive_password_changed)
+            self.entity.log.info("XMPPSERVER: Changing password for user %s@%s" % (user["jid"], server))
+
+## TNXMPPServerController xmlrpc implementation for shared roster groups
 
     def _send_xmlrpc_call(self, method, args):
         """
@@ -441,8 +472,6 @@ class TNXMPPServerController (TNArchipelPlugin):
             return method(args)
         except Exception as ex:
             raise Exception(str(ex).replace(self.xmlrpc_password, "[PASSWORD_HIDDEN]"))
-
-    ###  TNXMPPServerControllerBase xmlrpc implementation for SRG
 
     def group_create(self, ID, name, description):
         """
@@ -705,6 +734,7 @@ class TNXMPPServerController (TNArchipelPlugin):
             - list
             - filter
             - number
+            - changepassword
         @type conn: xmpp.Dispatcher
         @param conn: ths instance of the current connection that send the stanza
         @type iq: xmpp.Protocol.Iq
@@ -727,6 +757,10 @@ class TNXMPPServerController (TNArchipelPlugin):
                 raise xmpp.protocol.NodeProcessed
         elif action == "filter":
             reply = self.iq_users_filter(iq)
+            if not reply:
+                raise xmpp.protocol.NodeProcessed
+        elif action == "changepassword":
+            reply = self.iq_users_change_password(iq)
             if not reply:
                 raise xmpp.protocol.NodeProcessed
         if reply:
@@ -823,4 +857,20 @@ class TNXMPPServerController (TNArchipelPlugin):
             return None
         except Exception as ex:
             reply = build_error_iq(self, ex, iq, ARCHIPEL_ERROR_CODE_XMPPSERVER_USERS_FILTER)
+        return reply
+
+    def iq_users_change_password(self, iq):
+        """
+        Change password for users.
+        @type iq: xmpp.Protocol.Iq
+        @param iq: the received IQ
+        @rtype: xmpp.Protocol.Iq
+        @return: a ready to send IQ containing the result of the action
+        """
+        try:
+            reply = iq.buildReply("result")
+            users = map(lambda x: {"jid": xmpp.JID(x.getAttr("jid")), "password": x.getAttr("password")}, iq.getTag("query").getTag("archipel").getTags("user"))
+            self.users_change_password(users)
+        except Exception as ex:
+            reply = build_error_iq(self, ex, iq, ARCHIPEL_ERROR_CODE_XMPPSERVER_USERS_CHANGEPASSWORD)
         return reply
