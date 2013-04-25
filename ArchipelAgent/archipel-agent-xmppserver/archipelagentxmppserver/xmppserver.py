@@ -212,7 +212,8 @@ class TNXMPPServerController (TNArchipelPlugin):
         def on_receive_info(conn,iq):
             if iq.getType() == "error":
                 return iq.getTag("query").getTag("error").getAttr("code")
-            else return 0
+            else
+                return 0
 
         user_iq = xmpp.Iq(typ="get", to=xmppserver)
         user_iq.addChild("query", attrs={"node": "http://jabber.org/protocol/admin#get-registered-users-num"}, namespace="http://jabber.org/protocol/disco#info")
