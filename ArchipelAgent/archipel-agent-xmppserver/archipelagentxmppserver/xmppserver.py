@@ -40,6 +40,7 @@ ARCHIPEL_ERROR_CODE_XMPPSERVER_USERS_REGISTER       = -10007
 ARCHIPEL_ERROR_CODE_XMPPSERVER_USERS_UNREGISTER     = -10008
 ARCHIPEL_ERROR_CODE_XMPPSERVER_USERS_FILTER         = -10009
 ARCHIPEL_ERROR_CODE_XMPPSERVER_USERS_CHANGEPASSWORD = -10010
+ARCHIPEL_ERROR_CODE_XMPPSERVER_XMLRPC_MODULE        = -10011
 
 
 class TNXMPPServerController (TNArchipelPlugin):
@@ -202,6 +203,25 @@ class TNXMPPServerController (TNArchipelPlugin):
 
 
    ## Utils
+
+    def _admin_protocol_state(self):
+        """
+        Check if the current entity can use admin protocol commands
+        @return: 0 if ok, error code if not
+        """
+        def on_receive_info(conn,iq):
+            if iq.getType() == "error":
+                return iq.getTag("query").getTag("error").getAttr("code")
+            else return 0
+
+        user_iq = xmpp.Iq(typ="get", to=xmppserver)
+        user_iq.addChild("query", attrs={"node": "http://jabber.org/protocol/admin#get-registered-users-num"}, namespace="http://jabber.org/protocol/disco#info")
+        if self.entity.__class__.__name__ == "TNArchipelVirtualMachine":
+            self.entity.hypervisor.xmppclient.SendAndCallForResponse(user_iq, on_receive_info)
+        else:
+            self.entity.xmppclient.SendAndCallForResponse(user_iq, on_receive_info)
+
+
 
     def _extract_entity_type(self, vcard_node):
         """
@@ -584,7 +604,8 @@ class TNXMPPServerController (TNArchipelPlugin):
         action = self.entity.check_acp(conn, iq)
         self.entity.check_perm(conn, iq, action, -1, prefix="xmppserver_groups_")
         if not self.use_xmlrpc_api:
-            raise Exception("Shared Roster Group is not implemented in XMPP API you have to use XMLRPC for action : %s" %(action))
+            conn.send(build_error_iq(self, "Can't manage shared roster group : XMLRPC is disabled", iq, ARCHIPEL_ERROR_CODE_XMPPSERVER_XMLRPC_MODULE)
+            raise xmpp.protocol.NodeProcessed
         if action == "create":
             reply = self.iq_group_create(iq)
         elif action == "delete":
@@ -709,6 +730,10 @@ class TNXMPPServerController (TNArchipelPlugin):
         action = self.entity.check_acp(conn, iq)
         self.entity.check_perm(conn, iq, action, -1, prefix="xmppserver_users_")
         reply = None
+        protocol_state = _admin_protocol_state()
+        if protocol_state !=0:
+            conn.send(build_error_iq(self, "Can't manage users", iq, protocol_state))
+            raise xmpp.protocol.NodeProcessed
         if action == "number":
             reply = self.iq_users_number(iq)
             if not reply:
@@ -743,6 +768,10 @@ class TNXMPPServerController (TNArchipelPlugin):
         action = self.entity.check_acp(conn, iq)
         self.entity.check_perm(conn, iq, action, -1, prefix="xmppserver_users_")
         reply = None
+        protocol_state = _admin_protocol_state()
+        if protocol_state !=0:
+            conn.send(build_error_iq(self, "Can't manage users", iq, protocol_state))
+            raise xmpp.protocol.NodeProcessed
         if action == "register":
             reply = self.iq_users_register(iq)
         elif action == "unregister":
