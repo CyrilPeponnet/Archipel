@@ -159,8 +159,8 @@ class TNOOMKiller (TNArchipelPlugin):
         """
         try:
             pid = int(commands.getoutput("ps -ef | grep kvm | grep %s | grep -v grep" % self.entity.uuid).split()[1])
-            if os.path.isfile("/proc/%d/oom_score_adj" % pid)
-                f = open("/proc/%d/oom_score_adj" $ pid, "w")
+            if os.path.isfile("/proc/%d/oom_score_adj" % pid):
+                f = open("/proc/%d/oom_score_adj" % pid, "w")
             else:
                 f = open("proc/%d/oom_adj" % pid, "w")
             f.write(str(adjust))
